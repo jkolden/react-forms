@@ -1,13 +1,15 @@
-import React, {Component} from 'react';  
-
+import React, {Component} from 'react'
+import { Link } from 'react-router-dom'
 /* Import Components */
-import CheckBox from '../components/CheckBox';  
-import Input from '../components/Input';  
-import TextArea from '../components/TextArea';  
+import CheckBox from '../components/CheckBox';
+import Input from '../components/Input';
+import TextArea from '../components/TextArea';
 import Select from '../components/Select';
 import Button from '../components/Button'
+import ImageInput from '../components/ImageInput'
+import serializeForm from 'form-serialize'
 
-class FormContainer extends Component {  
+class FormContainer extends Component {
   constructor(props) {
     super(props);
 
@@ -26,8 +28,6 @@ class FormContainer extends Component {
 
     }
     this.handleTextArea = this.handleTextArea.bind(this);
-    this.handleAge = this.handleAge.bind(this);
-    this.handleFullName = this.handleFullName.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.handleClearForm = this.handleClearForm.bind(this);
     this.handleCheckBox = this.handleCheckBox.bind(this);
@@ -35,27 +35,11 @@ class FormContainer extends Component {
   }
 
   /* This lifecycle hook gets executed when the component mounts */
-  
-  handleFullName(e) {
-   let value = e.target.value;
-   this.setState( prevState => ({ newUser : 
-        {...prevState.newUser, name: value
-        }
-      }), () => console.log(this.state.newUser))
-  }
-
-  handleAge(e) {
-       let value = e.target.value;
-   this.setState( prevState => ({ newUser : 
-        {...prevState.newUser, age: value
-        }
-      }), () => console.log(this.state.newUser))
-  }
 
   handleInput(e) {
        let value = e.target.value;
        let name = e.target.name;
-   this.setState( prevState => ({ newUser : 
+   this.setState( prevState => ({ newUser :
         {...prevState.newUser, [name]: value
         }
       }), () => console.log(this.state.newUser))
@@ -89,28 +73,10 @@ class FormContainer extends Component {
       )
 }
 
-  handleFormSubmit(e) {
-    e.preventDefault();
-    let userData = this.state.newUser;
-
-    fetch('http://example.com',{
-        method: "POST",
-        body: JSON.stringify(userData),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-      }).then(response => {
-        response.json().then(data =>{
-          console.log("Successful" + data);
-        })
-    })
-  }   
-
   handleClearForm(e) {
-  
+
       e.preventDefault();
-      this.setState({ 
+      this.setState({
         newUser: {
           name: '',
           age: '',
@@ -121,31 +87,51 @@ class FormContainer extends Component {
       })
   }
 
+  handleFormSubmit = (e) => {
+    e.preventDefault();
+    let userData = this.state.newUser;
+
+    fetch('https://apex.oracle.com/pls/apex/myfusion/react/users/',{
+        method: "POST",
+        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }).then(response => {
+        response.json().then(data =>{
+          console.log("Successful" + data);
+          this.handleClearForm(e)
+        })
+    })
+  }
+
   render() {
     return (
-    
+      <div>
+      <Link to='/'>Close</Link>
+
         <form className="container-fluid" onSubmit={this.handleFormSubmit}>
-       
-            <Input inputType={'text'}
-                   title= {'Full Name'} 
+
+            <Input inputtype={'text'}
+                   title= {'Full Name'}
                    name= {'name'}
-                   value={this.state.newUser.name} 
+                   value={this.state.newUser.name}
                    placeholder = {'Enter your name'}
                    handleChange = {this.handleInput}
-                   
+
                    /> {/* Name of the user */}
-        
-          <Input inputType={'number'} 
+
+          <Input inputtype={'number'}
                 name={'age'}
-                 title= {'Age'} 
-                 value={this.state.newUser.age} 
+                 title= {'Age'}
+                 value={this.state.newUser.age}
                 placeholder = {'Enter your age'}
-                 handleChange={this.handleAge} /> {/* Age */} 
+                 handleChange={this.handleInput} /> {/* Age */}
 
 
           <Select title={'Gender'}
                   name={'gender'}
-                  options = {this.state.genderOptions} 
+                  options = {this.state.genderOptions}
                   value = {this.state.newUser.gender}
                   placeholder = {'Select Gender'}
                   handleChange = {this.handleInput}
@@ -156,6 +142,13 @@ class FormContainer extends Component {
                   selectedOptions = { this.state.newUser.skills}
                   handleChange={this.handleCheckBox}
                    /> {/* Skill */}
+
+          <ImageInput
+            className='create-contact-avatar-input'
+            name='avatarUrl'
+            maxHeight={64}
+            />
+
           <TextArea
             title={'About you.'}
             rows={10}
@@ -164,22 +157,26 @@ class FormContainer extends Component {
             handleChange={this.handleTextArea}
             placeholder={'Describe your past experience and skills'} />{/* About you */}
 
-          <Button 
+
+
+          <Button
               action = {this.handleFormSubmit}
-              type = {'primary'} 
-              title = {'Submit'} 
+              type = {'primary'}
+              title = {'Submit'}
             style={buttonStyle}
           /> { /*Submit */ }
-          
-          <Button 
+
+          <Button
             action = {this.handleClearForm}
             type = {'secondary'}
             title = {'Clear'}
             style={buttonStyle}
           /> {/* Clear the form */}
-          
+
         </form>
-  
+
+        </div>
+
     );
   }
 }

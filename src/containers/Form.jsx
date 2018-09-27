@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 /* Import Components */
 import CheckBox from '../components/CheckBox';
 import Input from '../components/Input';
@@ -9,14 +9,10 @@ import Button from '../components/Button'
 import ImageInput from '../components/ImageInput'
 import { saveUser } from '../actions'
 import { connect } from 'react-redux'
-import { Form } from 'semantic-ui-react'
 
+class Form extends Component {
 
-class FormContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
+    state = {
       newUser: {
         name: '',
         age: '',
@@ -25,18 +21,11 @@ class FormContainer extends Component {
         about: ''
 
       },
-      toHome: false,
 
       genderOptions: ['Male', 'Female', 'Others'],
       skillOptions: ['Programming', 'Development', 'Design', 'Testing']
-
     }
-    this.handleTextArea = this.handleTextArea.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
-    this.handleClearForm = this.handleClearForm.bind(this);
-    this.handleCheckBox = this.handleCheckBox.bind(this);
-    this.handleInput = this.handleInput.bind(this);
-  }
+
 
   /* This lifecycle hook gets executed when the component mounts */
 
@@ -92,11 +81,9 @@ class FormContainer extends Component {
 
   handleFormSubmit = (e) => {
     e.preventDefault();
+    //const values = serializeForm(e.target, {hash: true})
+    //console.log('values', values)
     let userData = this.state.newUser;
-
-    //yuk that data fetching logic is mixed in with a component that should
-    //only be concerned with rendering UI.
-    //the API fetch should be moved to the action creator!
 
     fetch('https://apex.oracle.com/pls/apex/myfusion/react/users/',{
         method: "POST",
@@ -108,24 +95,16 @@ class FormContainer extends Component {
         response.json().then(data => {
           this.props.dispatch(saveUser(data))
           this.handleClearForm(e)
-          this.setState(() => ({
-            toHome: true
-    }))
         })
     })
   }
 
   render() {
-
-    if (this.state.toHome === true) {
-      return <Redirect to='/' />
-    }
-
     return (
       <div>
       <Link to='/'>Close</Link>
 
-        <Form className="container-fluid" onSubmit={this.handleFormSubmit}>
+        <form className="container-fluid" onSubmit={this.handleFormSubmit}>
 
             <Input inputtype={'text'}
                    title= {'Full Name'}
@@ -186,7 +165,7 @@ class FormContainer extends Component {
             style={buttonStyle}
           /> {/* Clear the form */}
 
-        </Form>
+        </form>
 
         </div>
 
@@ -198,4 +177,4 @@ const buttonStyle = {
   margin : '10px 10px 10px 10px'
 }
 
-export default connect()(FormContainer)
+export default connect()(Form)

@@ -1,34 +1,54 @@
 import React, { Component } from 'react'
 import './App.css'
-import { Route } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom'
 import UsersRedux from './components/UsersRedux'
+import PersonPage from './components/PersonPage'
 import FormContainer from './containers/FormContainer'
-import reducer from './reducers'
-import middleware from './middleware'
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
 import { receiveUsers } from './actions'
 import { receiveUsersAsync } from './utils/api'
+import { connect } from 'react-redux'
+
 
 class App extends Component {
 
+  componentDidMount() {
+
+
+    receiveUsersAsync()
+      .then((data) => this.props.dispatch(receiveUsers(data)))
+  }
+
   render() {
 
-    const store = createStore(reducer, middleware)
+    const store = this.props
 
-      receiveUsersAsync()
-      .then((data) => store.dispatch(receiveUsers(data)))
+    const { loading } = store
+
+
+    if (loading === true) {
+
+      return <h3>Loading...</h3>
+
+    }
+
 
     return (
-      <Provider store={store}>
+      <BrowserRouter>
       <div>
-      <Route exact path = '/' component={() => (<UsersRedux />)} />
+      <Route exact path = '/' render={() => (<UsersRedux />)} />
       <Route path = '/create/' render={() => (<FormContainer />)} />
+      <Route path="/person/:id" component={PersonPage} />
       </div>
-
-      </Provider>
+      </BrowserRouter>
     );
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+
+  return state
+
+
+}
+
+export default connect(mapStateToProps)(App);

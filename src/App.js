@@ -7,6 +7,7 @@ import FormContainer from './containers/FormContainer'
 import { receiveUsers } from './actions'
 import { receiveUsersAsync } from './utils/api'
 import { connect } from 'react-redux'
+import { Login, SignUp } from './modules/auth'
 
 
 class App extends Component {
@@ -37,7 +38,9 @@ class App extends Component {
       <div>
       <Route exact path = '/' render={() => (<UsersRedux />)} />
       <Route path = '/create/' render={() => (<FormContainer />)} />
-      <Route path="/person/:id" component={PersonPage} />
+      <Route path = "/person/:id" component={PersonPage} />
+      <Route path = "/login" component={Login}/>
+      <Route path = "/signup" component={SignUp}/>
       </div>
       </BrowserRouter>
     );
@@ -45,10 +48,7 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-
   return state
-
-
 }
 
 export default connect(mapStateToProps)(App);

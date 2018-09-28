@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Input from "./Input";
 import Button from "./Button";
-import { updateUser, deleteUser } from "../actions";
-import { Redirect } from 'react-router-dom'
-
+import { handleUpdateUser, handleDeleteUser } from "../actions";
+import { Redirect } from "react-router-dom";
 
 class PersonPage extends Component {
   constructor(props) {
@@ -44,48 +43,36 @@ class PersonPage extends Component {
     );
   };
 
+  handleRedirect = () => {
+    this.setState(() => ({
+      toHome: true
+    }));
+  };
+
   handleFormSubmit = e => {
     e.preventDefault();
     let userData = this.state.User;
+    this.props.dispatch(handleUpdateUser(userData));
 
-    fetch("https://apex.oracle.com/pls/apex/myfusion/react/users/", {
-      method: "PUT",
-      body: JSON.stringify(userData),
-      headers: {
-        "Content-Type": "application/json",
-        id: this.state.User.id
-      }
-    }).then(response => {
-      response.json().then(data => {
-        this.props.dispatch(updateUser(data));
-        this.setState(() => ({
-          toHome: true
-        }));
-      });
-    });
+    this.setState(() => ({
+      toHome: true
+    }));
   };
 
   handleDelete = e => {
     e.preventDefault();
+    this.props.dispatch(handleDeleteUser(this.state.User));
 
-    fetch("https://apex.oracle.com/pls/apex/myfusion/react/users/", {
-      method: "DELETE",
-      headers: {
-        id: this.state.User.id
-      }
-    })
-    .then(this.props.dispatch(deleteUser(this.state.User)))
-    .then(this.setState(() => ({
-          toHome: true
-        }))
-    )
+    this.setState(() => ({
+      toHome: true
+    }));
   };
 
   render() {
     const { user } = this.props;
 
     if (this.state.toHome === true) {
-      return <Redirect to='/' />
+      return <Redirect to="/" />;
     }
 
     return (
@@ -111,7 +98,8 @@ class PersonPage extends Component {
           type={"primary"}
           title={"Update"}
         />
-        <Button style={{margin: 5}}
+        <Button
+          style={{ margin: 5 }}
           action={this.handleDelete}
           type={"primary"}
           title={"Delete"}

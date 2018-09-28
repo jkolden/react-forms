@@ -2,11 +2,13 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { Divider, List, Button, Header } from "semantic-ui-react";
+import NavBar from '../layout/NavBar'
 
 class UsersRedux extends Component {
   render() {
     return (
       <div style={{ margin: 20 }}>
+      <NavBar />
         <Header as="h1" textAlign="center">
           People
         </Header>

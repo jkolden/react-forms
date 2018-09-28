@@ -7,7 +7,7 @@ import TextArea from '../components/TextArea';
 import Select from '../components/Select';
 import Button from '../components/Button'
 import ImageInput from '../components/ImageInput'
-import { saveUser } from '../actions'
+import { handleSaveUser } from '../actions'
 import { connect } from 'react-redux'
 import { Form } from 'semantic-ui-react'
 
@@ -59,61 +59,51 @@ class FormContainer extends Component {
   }
 
 
-  handleCheckBox(e) {
+  handleCheckBox = e => {
+  const newSelection = e.target.value;
+  let newSelectionArray;
 
-    const newSelection = e.target.value;
-    let newSelectionArray;
+  if (this.state.newUser.skills.indexOf(newSelection) > -1) {
+    newSelectionArray = this.state.newUser.skills.filter(
+      s => s !== newSelection
+    );
+  } else {
+    newSelectionArray = [...this.state.newUser.skills, newSelection];
+  }
 
-    if(this.state.newUser.skills.indexOf(newSelection) > -1) {
-      newSelectionArray = this.state.newUser.skills.filter(s => s !== newSelection)
-    } else {
-      newSelectionArray = [...this.state.newUser.skills, newSelection];
+  this.setState(prevState => ({
+    newUser: { ...prevState.newUser, skills: newSelectionArray }
+  }));
+};
+
+ handleClearForm = () => {
+  this.setState({
+    newUser: {
+      name: "",
+      age: "",
+      gender: "",
+      skills: [],
+      about: ""
     }
+  });
+};
 
-      this.setState( prevState => ({ newUser:
-        {...prevState.newUser, skills: newSelectionArray }
-      })
-      )
-}
+  handleRedirect = () => {
+  this.setState(() => ({
+    toHome: true
+  }));
+};
 
-  handleClearForm(e) {
+  handleFormSubmit = e => {
+  e.preventDefault();
+  const { dispatch } = this.props;
+  const userData = this.state.newUser;
 
-      e.preventDefault();
-      this.setState({
-        newUser: {
-          name: '',
-          age: '',
-          gender: '',
-          skills: [],
-          about: ''
-        },
-      })
-  }
+  dispatch(
+    handleSaveUser(userData, [this.handleClearForm(), this.handleRedirect()])
+  );
+};
 
-  handleFormSubmit = (e) => {
-    e.preventDefault();
-    let userData = this.state.newUser;
-
-    //yuk that data fetching logic is mixed in with a component that should
-    //only be concerned with rendering UI.
-    //the API fetch should be moved to the action creator!
-
-    fetch('https://apex.oracle.com/pls/apex/myfusion/react/users/',{
-        method: "POST",
-        body: JSON.stringify(userData),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      }).then(response => {
-        response.json().then(data => {
-          this.props.dispatch(saveUser(data))
-          this.handleClearForm(e)
-          this.setState(() => ({
-            toHome: true
-    }))
-        })
-    })
-  }
 
   render() {
 
